@@ -2,13 +2,13 @@ package com.networks.networksproject;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,11 +31,12 @@ public class MainActivity extends AppCompatActivity {
     Integer responseCode;
     RequestQueue queue;
     Boolean clicked = false;
+    TextView OSlabel, WebServerLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        TextView OSlabel = (TextView) findViewById(R.id.textViewOSVersionLabel);
-        TextView WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
+        OSlabel = (TextView) findViewById(R.id.textViewOSVersionLabel);
+        WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
         queue = Volley.newRequestQueue(this);
 
         super.onCreate(savedInstanceState);
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                         String[] tmp = tmpHeader.split(" ");
                         WebServer = tmp[0].replace("/", " ");
                         OS = tmp[1].replace("(","").replace(")","");
+                        OSlabel.setText(OS);
                         Log.d("WebServer",WebServer);
                         Log.d("OperatingSystem",OS);
                     }
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     }else if (line.equals("")){
                         Log.d("LINE","Blank line");
                     }else {
-                        //Log.d("LINE",editTextURL.getText().toString()+line);
+                        Log.d("LINE",editTextURL.getText().toString()+line);
                         queue.add(CreateStringRequest(editTextURL.getText().toString()+line));
                     }
                 }
