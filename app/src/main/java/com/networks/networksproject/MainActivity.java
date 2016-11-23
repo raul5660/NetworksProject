@@ -1,5 +1,6 @@
 package com.networks.networksproject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.provider.Settings;
@@ -31,12 +32,9 @@ public class MainActivity extends AppCompatActivity {
     Integer responseCode;
     RequestQueue queue;
     Boolean clicked = false;
-    TextView OSlabel, WebServerLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        OSlabel = (TextView) findViewById(R.id.textViewOSVersionLabel);
-        WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
         queue = Volley.newRequestQueue(this);
 
         super.onCreate(savedInstanceState);
@@ -56,41 +54,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    StringRequest CreateStringRequest(String url){
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                }) {
-
-            @Override
-            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                responseCode = response.statusCode;
-                Log.d("ResponseCode",responseCode.toString());
-                if (response.headers.containsKey("Server")) {
-                    String tmpHeader = response.headers.get("Server");
-                    if(tmpHeader.contains("/")){
-                        String[] tmp = tmpHeader.split(" ");
-                        WebServer = tmp[0].replace("/", " ");
-                        OS = tmp[1].replace("(","").replace(")","");
-                        OSlabel.setText(OS);
-                        Log.d("WebServer",WebServer);
-                        Log.d("OperatingSystem",OS);
-                    }
-                }
-                return super.parseNetworkResponse(response);
-            }
-        };
-        return stringRequest;
-    }
-
     public String addressValidation(String url){
         if (!url.startsWith("http://")){
             if (!url.startsWith("https://"))
@@ -103,7 +66,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void attackOnClick(View view){
         if (!clicked){
-            EditText editTextURL = (EditText) findViewById(R.id.editTextURL);
+            final EditText editTextURL = (EditText) findViewById(R.id.editTextURL);
+            final TextView OSlabel = (TextView) findViewById(R.id.textViewOSVersionLabel);
+            final TextView WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
             clicked = !clicked;
             String line;
             try {
@@ -120,7 +85,39 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("LINE","Blank line");
                     }else {
                         Log.d("LINE",editTextURL.getText().toString()+line);
-                        queue.add(CreateStringRequest(editTextURL.getText().toString()+line));
+                        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                                editTextURL.getText().toString()+line,
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        WebServerLabel.setText(WebServer);
+                                        OSlabel.setText(OS);
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                    }
+                                }) {
+
+                            @Override
+                            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                                responseCode = response.statusCode;
+                                Log.d("ResponseCode",responseCode.toString());
+                                if (response.headers.containsKey("Server")) {
+                                    String tmpHeader = response.headers.get("Server");
+                                    if(tmpHeader.contains("/")){
+                                        String[] tmp = tmpHeader.split(" ");
+                                        WebServer = tmp[0].replace("/", " ");
+                                        OS = tmp[1].replace("(","").replace(")","");
+                                        Log.d("WebServer",WebServer);
+                                        Log.d("OperatingSystem",OS);
+                                    }
+                                }
+                                return super.parseNetworkResponse(response);
+                            }
+                        };
+                        queue.add(stringRequest);
                     }
                 }
                 bufferedReader.close();
