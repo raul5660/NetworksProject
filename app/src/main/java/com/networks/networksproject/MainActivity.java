@@ -1,9 +1,7 @@
 package com.networks.networksproject;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -26,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     String WebServer,OS,wordList;
@@ -41,9 +41,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final Spinner wordlistSpinner = (Spinner) findViewById(R.id.wordlists);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.directory_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        wordlistSpinner.setAdapter(adapter);
+        ArrayAdapter<CharSequence> directoryAdapter = ArrayAdapter.createFromResource(this, R.array.directory_array, android.R.layout.simple_spinner_item);
+        directoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        wordlistSpinner.setAdapter(directoryAdapter);
         wordlistSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 wordList = parent.getItemAtPosition(position).toString();
@@ -54,44 +54,43 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public String addressValidation(String url){
-        if (!url.startsWith("http://")){
-            if (!url.startsWith("https://"))
-            {
-                url = "http://" + url;
-            }
-        }
-        return url;
-    }
-
     public void attackOnClick(View view){
         if (!clicked){
             final EditText editTextURL = (EditText) findViewById(R.id.editTextURL);
             final TextView OSlabel = (TextView) findViewById(R.id.textViewOSVersionLabel);
             final TextView WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
+            ArrayList<String> listItems=new ArrayList<String>();
+            ListView listView = (ListView)findViewById(R.id.foundDirectoriesListView);
+            final ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+            listView.setAdapter(listViewAdapter);
             clicked = !clicked;
             String line;
             try {
-                Log.d("DEBUG", "Starting To Read File");
-                Context context = getApplicationContext();
-                AssetManager assetManager = context.getAssets();
+                AssetManager assetManager = getApplicationContext().getAssets();
                 InputStream inputStream = assetManager.open(wordList);
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 while ((line = bufferedReader.readLine()) != null) {
+                    final String url = editTextURL.getText().toString()+line;
                     if (line.contains("#")){
-                        Log.d("LINE","Comment line");
                     }else if (line.equals("")){
-                        Log.d("LINE","Blank line");
                     }else {
-                        Log.d("LINE",editTextURL.getText().toString()+line);
                         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                                editTextURL.getText().toString()+line,
+                                url,
                                 new Response.Listener<String>() {
                                     @Override
                                     public void onResponse(String response) {
-                                        WebServerLabel.setText(WebServer);
-                                        OSlabel.setText(OS);
+                                        if (responseCode == 200 ){
+                                            Log.d("SuccessfulURL",url);
+                                            listViewAdapter.add(url);
+                                            responseCode = 0;
+                                        }
+                                        if (WebServer != null){
+                                            WebServerLabel.setText(WebServer);
+                                        }
+                                        if (OS != null) {
+                                            OSlabel.setText(OS);
+                                        }
                                     }
                                 },
                                 new Response.ErrorListener() {
@@ -103,15 +102,12 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             protected Response<String> parseNetworkResponse(NetworkResponse response) {
                                 responseCode = response.statusCode;
-                                Log.d("ResponseCode",responseCode.toString());
                                 if (response.headers.containsKey("Server")) {
                                     String tmpHeader = response.headers.get("Server");
                                     if(tmpHeader.contains("/")){
                                         String[] tmp = tmpHeader.split(" ");
                                         WebServer = tmp[0].replace("/", " ");
                                         OS = tmp[1].replace("(","").replace(")","");
-                                        Log.d("WebServer",WebServer);
-                                        Log.d("OperatingSystem",OS);
                                     }
                                 }
                                 return super.parseNetworkResponse(response);
@@ -124,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e){
                 Log.d("DEBUG",e.toString());
             }
-            Log.d("OnClick","Click");
         }
+        clicked = !clicked;
     }
 }

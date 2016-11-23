@@ -84,11 +84,26 @@
         android:layout_toRightOf="@+id/textViewOSLabel"
         android:layout_toEndOf="@+id/textViewOSLabel" />
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <TextView
+        android:text="Items Found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewFound"
         android:layout_below="@+id/textViewWebServerLabel"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="25dp" />
+        android:layout_marginTop="13dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textAlignment="center" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/textViewFound"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="25dp"
+        android:id="@+id/foundDirectoriesListView" />
+
 </RelativeLayout>
