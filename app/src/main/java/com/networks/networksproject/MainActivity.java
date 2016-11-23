@@ -8,10 +8,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -28,10 +30,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    int requests = 0, lines = 0;
     String WebServer,OS,wordList;
     Integer responseCode;
     RequestQueue queue;
-    Boolean clicked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,79 +50,114 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 wordList = parent.getItemAtPosition(position).toString();
                 Log.d("SelectedWordList", wordList);
+                lines = getLineCount();
             }
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
     }
 
-    public void attackOnClick(View view){
-        if (!clicked){
-            final EditText editTextURL = (EditText) findViewById(R.id.editTextURL);
-            final TextView OSlabel = (TextView) findViewById(R.id.textViewOSVersionLabel);
-            final TextView WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
-            ArrayList<String> listItems=new ArrayList<String>();
-            ListView listView = (ListView)findViewById(R.id.foundDirectoriesListView);
-            final ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
-            listView.setAdapter(listViewAdapter);
-            clicked = !clicked;
-            String line;
-            try {
-                AssetManager assetManager = getApplicationContext().getAssets();
-                InputStream inputStream = assetManager.open(wordList);
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                while ((line = bufferedReader.readLine()) != null) {
-                    final String url = editTextURL.getText().toString()+line;
-                    if (line.contains("#")){
-                    }else if (line.equals("")){
-                    }else {
-                        StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                                url,
-                                new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(String response) {
-                                        if (responseCode == 200 ){
-                                            Log.d("SuccessfulURL",url);
-                                            listViewAdapter.add(url);
-                                            responseCode = 0;
-                                        }
-                                        if (WebServer != null){
-                                            WebServerLabel.setText(WebServer);
-                                        }
-                                        if (OS != null) {
-                                            OSlabel.setText(OS);
-                                        }
-                                    }
-                                },
-                                new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                    }
-                                }) {
+    public int getLineCount(){
+        int x = 0;
+        try{
+            Context context = getApplicationContext();
+            AssetManager assetManager = context.getAssets();
+            InputStream inputStream = assetManager.open(wordList);
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            while (bufferedReader.readLine() != null) {
+                x++;
+            }
+            bufferedReader.close();
+        } catch (Exception e){
+            Log.d("ERROR", e.toString());
+        }
+        return x;
+    }
 
-                            @Override
-                            protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                                responseCode = response.statusCode;
-                                if (response.headers.containsKey("Server")) {
-                                    String tmpHeader = response.headers.get("Server");
-                                    if(tmpHeader.contains("/")){
-                                        String[] tmp = tmpHeader.split(" ");
-                                        WebServer = tmp[0].replace("/", " ");
-                                        OS = tmp[1].replace("(","").replace(")","");
+    public void attackOnClick(View view){
+        requests = 0;
+        Context context = getApplicationContext();
+        final Toast toast = Toast.makeText(context, "Starting", Toast.LENGTH_SHORT);
+        final EditText editTextURL = (EditText) findViewById(R.id.editTextURL);
+        final TextView OSlabel = (TextView) findViewById(R.id.textViewOSVersionLabel);
+        final TextView WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
+        final Button attackButton = (Button) findViewById(R.id.attackButton);
+        attackButton.setEnabled(false);
+        ArrayList<String> listItems=new ArrayList<String>();
+        ListView listView = (ListView)findViewById(R.id.foundDirectoriesListView);
+        final ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+        listView.setAdapter(listViewAdapter);
+        String line;
+        try {
+            toast.show();
+            AssetManager assetManager = context.getAssets();
+            InputStream inputStream = assetManager.open(wordList);
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            while ((line = bufferedReader.readLine()) != null) {
+                final String url = editTextURL.getText().toString()+line;
+                if (line.contains("#")){
+                }else if (line.equals("")){
+                }else {
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                            url,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    requests++;
+                                    if (requests == lines){
+                                        attackButton.setEnabled(true);
+                                        toast.setText("Done");
+                                        toast.show();
+                                    }
+                                    if (responseCode == 200 ){
+                                        Log.d("SuccessfulURL",url);
+                                        listViewAdapter.add(url);
+                                        responseCode = 0;
+                                    }
+                                    if (WebServer != null){
+                                        WebServerLabel.setText(WebServer);
+                                    }
+                                    if (OS != null) {
+                                        OSlabel.setText(OS);
                                     }
                                 }
-                                return super.parseNetworkResponse(response);
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    requests++;
+                                    if (requests == lines){
+                                        attackButton.setEnabled(true);
+                                        toast.setText("Done");
+                                        toast.show();
+                                    }
+                                }
+                            }) {
+                        @Override
+                        protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                            responseCode = response.statusCode;
+                            if (response.headers.containsKey("Server")) {
+                                String tmpHeader = response.headers.get("Server");
+                                if(tmpHeader.contains("/")){
+                                    String[] tmp = tmpHeader.split(" ");
+                                    WebServer = tmp[0].replace("/", " ");
+                                    OS = tmp[1].replace("(","").replace(")","");
+                                }
                             }
-                        };
-                        queue.add(stringRequest);
-                    }
+                            return super.parseNetworkResponse(response);
+                        }
+                    };
+                    queue.add(stringRequest);
                 }
-                bufferedReader.close();
-            } catch (IOException e){
-                Log.d("DEBUG",e.toString());
             }
+            bufferedReader.close();
+        } catch (IOException e){
+            toast.setText("Error: "+e.toString());
+            toast.show();
+            Log.d("DEBUG",e.toString());
         }
-        clicked = !clicked;
+        Log.d("DEBUG","Done");
     }
 }
