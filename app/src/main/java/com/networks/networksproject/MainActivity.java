@@ -20,13 +20,18 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.android.volley.ServerError;
+
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         wordlistSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 wordList = parent.getItemAtPosition(position).toString();
-                Log.d("SelectedWordList", wordList);
                 lines = getLineCount();
             }
             public void onNothingSelected(AdapterView<?> parent) {
@@ -105,14 +109,14 @@ public class MainActivity extends AppCompatActivity {
                             new Response.Listener<String>() {
                                 @Override
                                 public void onResponse(String response) {
-                                    requests++;
+                                    Log.d("REQUESTS", String.format("LINES: %d, REQUESTS: %d", lines, requests));
+                                    //requests++;
                                     if (requests == lines){
                                         attackButton.setEnabled(true);
                                         toast.setText("Done");
                                         toast.show();
                                     }
                                     if (responseCode == 200 ){
-                                        Log.d("SuccessfulURL",url);
                                         listViewAdapter.add(url);
                                         responseCode = 0;
                                     }
@@ -127,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                             new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
+                                    Log.d("REQUESTS", String.format("LINES: %d, REQUESTS: %d", lines, requests));
                                     requests++;
                                     if (requests == lines){
                                         attackButton.setEnabled(true);
@@ -137,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                             }) {
                         @Override
                         protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                            requests++;
                             responseCode = response.statusCode;
                             if (response.headers.containsKey("Server")) {
                                 String tmpHeader = response.headers.get("Server");
@@ -158,6 +164,5 @@ public class MainActivity extends AppCompatActivity {
             toast.show();
             Log.d("DEBUG",e.toString());
         }
-        Log.d("DEBUG","Done");
     }
 }

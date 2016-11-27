@@ -2,10 +2,6 @@
     <string name="app_name">Networks Project</string>
     <string-array name="directory_array">
         <item>Test.txt</item>
-        <item>directory-list-1.0.txt</item>
-        <item>directory-list-2.3_medium.txt</item>
-        <item>directory-list-2.3_small.txt</item>
-        <item>directory-list-lowercase-2.3-medium.txt</item>
-        <item>directory-list-lowercase-2.3-small.txt</item>
+        <item>directory-list-2.3-small.txt</item>
     </string-array>
 </resources>
