@@ -20,18 +20,13 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.android.volley.ServerError;
-
-import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -70,9 +65,7 @@ public class MainActivity extends AppCompatActivity {
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             while ((line = bufferedReader.readLine()) != null) {
-                if (line.contains("#")){
-                }else if (line.equals("")){
-                }else {
+                if (!line.contains("#") && !line.equals("")){
                     x++;
                 }
             }
@@ -105,9 +98,7 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             while ((line = bufferedReader.readLine()) != null) {
                 final String url = editTextURL.getText().toString()+line;
-                if (line.contains("#")){
-                }else if (line.equals("")){
-                }else {
+                if (!line.contains("#") && !line.equals("")) {
                     StringRequest stringRequest = new StringRequest(Request.Method.GET,
                             url,
                             new Response.Listener<String>() {
