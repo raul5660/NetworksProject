@@ -104,8 +104,6 @@ public class MainActivity extends AppCompatActivity {
                             new Response.Listener<String>() {
                                 @Override
                                 public void onResponse(String response) {
-                                    Log.d("REQUESTS", String.format("LINES: %d, REQUESTS: %d", lines, requests));
-                                    //requests++;
                                     if (requests == lines){
                                         attackButton.setEnabled(true);
                                         toast.setText("Done");
@@ -126,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
                             new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
-                                    Log.d("REQUESTS", String.format("LINES: %d, REQUESTS: %d", lines, requests));
                                     requests++;
                                     if (requests == lines){
                                         attackButton.setEnabled(true);
