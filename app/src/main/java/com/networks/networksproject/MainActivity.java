@@ -5,6 +5,7 @@ import android.content.res.AssetManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -93,6 +94,13 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(listViewAdapter);
         String line;
         try {
+            if (!Patterns.WEB_URL.matcher(editTextURL.getText()).matches()){
+                attackButton.setEnabled(true);
+                throw new Exception("Invalid URL");
+            }else if (editTextURL.getText().charAt(editTextURL.getText().length()-1) != '/')
+            {
+                editTextURL.setText(editTextURL.getText().append('/'));
+            }
             toast.show();
             AssetManager assetManager = context.getAssets();
             InputStream inputStream = assetManager.open(wordList);
@@ -155,6 +163,10 @@ public class MainActivity extends AppCompatActivity {
             bufferedReader.close();
         } catch (IOException e){
             toast.setText("Error: "+e.toString());
+            toast.show();
+            Log.d("DEBUG",e.toString());
+        } catch (Exception e){
+            toast.setText("Error: "+e.getMessage());
             toast.show();
             Log.d("DEBUG",e.toString());
         }
