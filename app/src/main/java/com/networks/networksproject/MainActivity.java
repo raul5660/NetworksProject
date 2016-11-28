@@ -29,13 +29,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import static android.R.layout.simple_spinner_item;
+
 public class MainActivity extends AppCompatActivity {
     int requests = 0, lines = 0;
     String WebServer,OS,wordList;
     Integer responseCode;
     RequestQueue queue;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         queue = Volley.newRequestQueue(this);
 
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final Spinner wordlistSpinner = (Spinner) findViewById(R.id.wordlists);
-        ArrayAdapter<CharSequence> directoryAdapter = ArrayAdapter.createFromResource(this, R.array.directory_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> directoryAdapter = ArrayAdapter.createFromResource(this, R.array.directory_array, simple_spinner_item);
         directoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         wordlistSpinner.setAdapter(directoryAdapter);
         wordlistSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
