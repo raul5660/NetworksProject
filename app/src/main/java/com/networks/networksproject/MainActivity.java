@@ -85,9 +85,9 @@ public class MainActivity extends AppCompatActivity {
         final TextView WebServerLabel = (TextView) findViewById(R.id.textViewWebServerVersionLabel);
         final Button attackButton = (Button) findViewById(R.id.attackButton);
         attackButton.setEnabled(false);
-        ArrayList<String> listItems=new ArrayList<String>();
+        ArrayList<String> listItems=new ArrayList<>();
         ListView listView = (ListView)findViewById(R.id.foundDirectoriesListView);
-        final ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+        final ArrayAdapter<String> listViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listItems);
         listView.setAdapter(listViewAdapter);
         String line;
         try {
