@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import static android.R.layout.simple_spinner_item;
+import static com.networks.networksproject.R.array.directory_array;
 
 public class MainActivity extends AppCompatActivity {
     int requests = 0, lines = 0;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final Spinner wordlistSpinner = (Spinner) findViewById(R.id.wordlists);
-        ArrayAdapter<CharSequence> directoryAdapter = ArrayAdapter.createFromResource(this, R.array.directory_array, simple_spinner_item);
+        ArrayAdapter<CharSequence> directoryAdapter = ArrayAdapter.createFromResource(this, directory_array, simple_spinner_item);
         directoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         wordlistSpinner.setAdapter(directoryAdapter);
         wordlistSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
