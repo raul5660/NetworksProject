@@ -60,17 +60,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     public int getLineCount(){
         int x = 0;
+        String line;
         try{
             Context context = getApplicationContext();
             AssetManager assetManager = context.getAssets();
             InputStream inputStream = assetManager.open(wordList);
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            while (bufferedReader.readLine() != null) {
-                x++;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.contains("#")){
+                }else if (line.equals("")){
+                }else {
+                    x++;
+                }
             }
             bufferedReader.close();
         } catch (Exception e){
